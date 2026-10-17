@@ -1,0 +1,25 @@
+{
+  "name": "SIMKEU — PT Media Tulisan Manusia",
+  "short_name": "SIMKEU",
+  "description": "Sistem Informasi Manajemen Keuangan PT Media Tulisan Manusia",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e0f12",
+  "theme_color": "#14161b",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
