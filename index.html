@@ -108,19 +108,21 @@
         .pdf-mode input, .pdf-mode select { display: none !important; }
         input, select { transition: all 0.2s; }
 
-        /* PRINT MEDIA KHUSUS MODAL CETAK SURAT / INVOICE ALA SISAPI */
+        /* Media Print Khusus Cetak Dokumen Langsung */
         @media print {
-            body * { visibility: hidden; }
-            #areaDokumenCetak, #areaDokumenCetak * { visibility: visible; }
+            body * { visibility: hidden !important; }
+            #modalPreviewDokumen, #modalPreviewDokumen * { visibility: visible !important; }
             #areaDokumenCetak {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 0;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 box-shadow: none !important;
+                border: none !important;
             }
+            .no-print-modal { display: none !important; }
         }
     </style>
 </head>
@@ -131,54 +133,53 @@
     <!-- =================================================================== -->
     <!-- MODAL PRATINJAU CETAK DOKUMEN ALA SISAPI (INVOICE, BUKTI, SLIP)     -->
     <!-- =================================================================== -->
-    <div x-show="showModalPreview" x-transition.opacity class="fixed inset-0 z-[300] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto no-print">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl my-auto flex flex-col max-h-[92vh]">
+    <div id="modalPreviewDokumen" x-show="showPrintModal" x-transition.opacity class="fixed inset-0 z-[300] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden my-auto flex flex-col max-h-[94vh]">
             
             <!-- Header Modal Pratinjau -->
-            <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 no-print-modal shrink-0">
                 <div class="flex items-center space-x-2.5">
                     <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                        <i class="fa-solid fa-file-invoice"></i>
+                        <i class="fa-solid fa-file-invoice text-sm"></i>
                     </span>
                     <div>
-                        <h3 class="font-extrabold text-xs sm:text-sm text-white" x-text="previewTitle">Pratinjau Dokumen Resmi</h3>
-                        <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia — Dokumen Terverifikasi QR</p>
+                        <h3 class="font-bold text-xs sm:text-sm" x-text="previewTitle">Pratinjau Dokumen Resmi</h3>
+                        <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia • Siap Cetak / Unduh PDF</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button @click="printDokumenLangsung()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center space-x-1.5 shadow transition">
-                        <i class="fa-solid fa-print"></i>
-                        <span class="hidden sm:inline">Cetak Printer</span>
-                    </button>
-                    <button @click="unduhDokumenPDF()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-1.5 shadow transition">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>Unduh PDF</span>
-                    </button>
-                    <button @click="showModalPreview = false" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
+                <button @click="showPrintModal = false" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <!-- Area Kertas Pratinjau (Scrollable) -->
-            <div class="p-3 sm:p-6 overflow-y-auto bg-slate-800/60 flex-1 flex justify-center">
-                <div id="areaDokumenCetak" class="bg-white text-slate-900 w-full max-w-[760px] p-6 sm:p-8 rounded-xl shadow-xl font-sans" style="color: #0f172a; background: #ffffff;">
-                    <!-- Konten HTML Dokumen Di-render Dinamis Ala SISAPI -->
+            <div class="p-3 sm:p-6 overflow-y-auto bg-slate-200/70 dark:bg-slate-950/70 flex-1 flex justify-center">
+                <div id="areaDokumenCetak" class="bg-white text-slate-900 w-full max-w-[760px] p-6 sm:p-8 rounded-xl shadow-lg border border-slate-200" x-html="previewHtml">
                 </div>
             </div>
 
-            <!-- Footer Modal Pratinjau -->
-            <div class="px-4 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
-                <span><i class="fa-solid fa-qrcode text-emerald-400 mr-1"></i> Dilengkapi QR Code Verifikasi Keaslian</span>
-                <button @click="showModalPreview = false" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">Tutup Pratinjau</button>
+            <!-- Footer Tombol Aksi Modal Pratinjau Ala SISAPI -->
+            <div class="bg-slate-100 dark:bg-slate-900 px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-end gap-2 no-print-modal shrink-0">
+                <button type="button" @click="showPrintModal = false" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 transition">
+                    Tutup
+                </button>
+                <button type="button" @click="printDokumenLangsung()" class="px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white shadow flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Cetak / Print</span>
+                </button>
+                <button type="button" @click="unduhDokumenPDF()" class="px-5 py-2.5 rounded-xl font-extrabold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 flex items-center space-x-1.5 transition">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Unduh PDF</span>
+                </button>
             </div>
+
         </div>
     </div>
 
     <!-- =================================================================== -->
     <!-- OVERLAY LOADING GLOBAL                                              -->
     <!-- =================================================================== -->
-    <div x-show="isGlobalLoading" x-transition.opacity.duration.150ms class="fixed inset-0 z-[999] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center">
+    <div x-show="isGlobalLoading" x-transition.opacity.duration.150ms class="fixed inset-0 z-[999] bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center no-print">
         <div class="sisapi-card p-6 rounded-2xl flex flex-col items-center justify-center space-y-3 shadow-2xl border border-slate-700/60">
             <div class="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
             <p class="text-xs font-bold tracking-wider uppercase text-slate-700 dark:text-slate-200" x-text="loadingText || 'Memproses Data...'"></p>
@@ -196,7 +197,7 @@
     <!-- =================================================================== -->
     <!-- HALAMAN LOGIN ALA SISAPI (User: Admin / Pass: CFO | CEO / Sufyan)   -->
     <!-- =================================================================== -->
-    <div x-show="!isLoggedIn" x-transition class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+    <div x-show="!isLoggedIn" x-transition class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 no-print">
         <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
             <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -270,11 +271,11 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Web App URL (Google Apps Script)</label>
                     <input type="url" x-model="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full sisapi-input rounded-xl px-3 py-2.5 text-xs font-mono-code focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <p class="text-[10px] text-slate-400 mt-1.5">URL Google Apps Script Anda sudah tertanam otomatis. Anda juga dapat memperbaruinya di sini jika diperlukan.</p>
+                    <p class="text-[10px] text-slate-400 mt-1.5">URL Google Sheets Keuangan MTM Anda sudah tertanam otomatis. Anda juga dapat memperbaruinya di sini bila diperlukan.</p>
                 </div>
                 <div class="flex space-x-2 pt-1">
-                    <button type="button" @click="resetDefaultUrl()" class="px-3 py-2.5 rounded-xl font-bold text-[11px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300">Reset Default</button>
-                    <button type="button" @click="saveScriptUrl()" class="flex-1 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow flex items-center justify-center space-x-1.5">
+                    <button type="button" @click="showModalConfig = false" class="w-1/2 py-2.5 rounded-xl font-bold text-xs bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Batal</button>
+                    <button type="button" @click="saveScriptUrl()" class="w-1/2 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow flex items-center justify-center space-x-1.5">
                         <i class="fa-solid fa-floppy-disk"></i>
                         <span>Simpan & Sinkron</span>
                     </button>
@@ -284,7 +285,7 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- HEADER UTAMA & NAVIGASI ATAS ALA SISAPI (TANPA TOMBOL MELAYANG)     -->
+    <!-- HEADER UTAMA & NAVIGASI ATAS ALA SISAPI (TANPA SIDEBAR MELAYANG)    -->
     <!-- =================================================================== -->
     <div x-show="isLoggedIn" class="w-full">
         
@@ -341,7 +342,7 @@
                     <div class="flex items-center space-x-1.5 text-slate-500 dark:text-slate-400">
                         <i class="fa-regular fa-clock text-emerald-500"></i>
                         <span>Live:</span>
-                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 font-sans font-bold" x-text="scriptUrl ? 'Sheets Cloud Aktif' : 'Mode Lokal'"></span>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 font-sans font-bold" x-text="scriptUrl ? 'Sheets Terhubung' : 'Mode Lokal'"></span>
                     </div>
                     <div class="font-bold text-slate-700 dark:text-slate-300" x-text="realtimeClock"></div>
                 </div>
@@ -421,7 +422,7 @@
                 <div class="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-slate-900 via-[#0d2824] to-emerald-900 text-white shadow-xl border border-emerald-500/20 relative overflow-hidden">
                     <div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold mb-3">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span x-text="scriptUrl ? 'Database Sheets Terhubung' : 'Database Lokal Aktif'"></span>
+                        <span x-text="scriptUrl ? 'Database Sheets Aktif' : 'Database Lokal Aktif'"></span>
                     </div>
 
                     <h2 class="text-xl sm:text-2xl font-black tracking-tight">
@@ -456,6 +457,7 @@
 
                 <!-- 4 Kartu Statistik Utama Ala SISAPI (Grid 2x2) -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <!-- Kartu 1: Pemasukan Bulan Ini -->
                     <div class="sisapi-card rounded-2xl p-4 flex flex-col justify-between">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">OMSET BULAN INI</span>
@@ -469,6 +471,7 @@
                         </div>
                     </div>
 
+                    <!-- Kartu 2: Pengeluaran Bulan Ini -->
                     <div class="sisapi-card rounded-2xl p-4 flex flex-col justify-between">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">PENGELUARAN</span>
@@ -482,6 +485,7 @@
                         </div>
                     </div>
 
+                    <!-- Kartu 3: Laba Bersih Bulan Ini -->
                     <div class="sisapi-card rounded-2xl p-4 flex flex-col justify-between">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 dark:text-blue-400">LABA BERSIH</span>
@@ -497,6 +501,7 @@
                         </div>
                     </div>
 
+                    <!-- Kartu 4: Total Kas & Bank -->
                     <div class="sisapi-card rounded-2xl p-4 flex flex-col justify-between">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">TOTAL KAS & BANK</span>
@@ -518,7 +523,7 @@
                             <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
                         </div>
                         <h3 class="font-extrabold text-sm text-slate-900 dark:text-white">Pendapatan Masuk</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Input Omset & Cetak Invoice QR</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Input Omset & Pratinjau Invoice</p>
                         <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-emerald-500 text-xs font-bold">
                             <span>Buka</span>
                             <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
@@ -530,7 +535,7 @@
                             <i class="fa-solid fa-receipt text-sm"></i>
                         </div>
                         <h3 class="font-extrabold text-sm text-slate-900 dark:text-white">Pengeluaran</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Belanja Operasional & Kwitansi</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Belanja Operasional & Bukti</p>
                         <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-rose-500 text-xs font-bold">
                             <span>Buka</span>
                             <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
@@ -605,6 +610,7 @@
                         <p class="text-[10px] text-slate-400 mt-2">Total Kas Akhir (Saldo Bank + Laba Bersih <span x-text="activeYear"></span>): <b class="text-emerald-500" x-text="formatRp((data.saldoBank || 0) + labaBersihSetahun)"></b></p>
                     </div>
 
+                    <!-- Panel Pusat Unduhan Cepat -->
                     <div class="sisapi-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-2">
@@ -835,7 +841,7 @@
                                     <th class="py-3 px-3 w-32">Harga (Rp)</th>
                                     <th class="py-3 px-3 w-16 text-center">Jml</th>
                                     <th class="py-3 px-3 w-36">Total Omset</th>
-                                    <th class="py-3 px-3 w-28 text-center no-print">Cetak / Opsi</th>
+                                    <th class="py-3 px-3 w-24 text-center no-print">Opsi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
@@ -874,11 +880,10 @@
                                         <td class="p-2 font-mono-code font-extrabold text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm" x-text="formatRp(item.biaya * item.jumlah)"></td>
                                         <td class="p-2 text-center no-print">
                                             <div class="flex items-center justify-center space-x-1">
-                                                <button @click="bukaModalCetak('invoice', item, index)" class="px-2.5 py-1.5 rounded-lg bg-emerald-600/15 text-emerald-500 hover:bg-emerald-600 hover:text-white font-bold text-[11px] flex items-center space-x-1 transition" title="Pratinjau & Cetak Invoice">
-                                                    <i class="fa-solid fa-print text-[10px]"></i>
-                                                    <span>Invoice</span>
+                                                <button @click="bukaModalPratinjau('invoice', item, index)" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white transition" title="Pratinjau & Cetak Invoice">
+                                                    <i class="fa-solid fa-print text-xs"></i>
                                                 </button>
-                                                <button @click="hapusBarisBulan('pendapatan', index)" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
+                                                <button @click="hapusBarisBulan('pendapatan', index)" class="p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
                                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                                 </button>
                                             </div>
@@ -928,7 +933,7 @@
                                     <th class="py-3 px-3 w-32">Harga (Rp)</th>
                                     <th class="py-3 px-3 w-16 text-center">Jml</th>
                                     <th class="py-3 px-3 w-36">Total Keluaran</th>
-                                    <th class="py-3 px-3 w-28 text-center no-print">Cetak / Opsi</th>
+                                    <th class="py-3 px-3 w-24 text-center no-print">Opsi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
@@ -957,11 +962,10 @@
                                         <td class="p-2 font-mono-code font-extrabold text-rose-600 dark:text-rose-400 text-xs sm:text-sm" x-text="formatRp(item.biaya * item.jumlah)"></td>
                                         <td class="p-2 text-center no-print">
                                             <div class="flex items-center justify-center space-x-1">
-                                                <button @click="bukaModalCetak('receipt', item, index)" class="px-2.5 py-1.5 rounded-lg bg-rose-600/15 text-rose-500 hover:bg-rose-600 hover:text-white font-bold text-[11px] flex items-center space-x-1 transition" title="Pratinjau & Cetak Bukti">
-                                                    <i class="fa-solid fa-print text-[10px]"></i>
-                                                    <span>Bukti</span>
+                                                <button @click="bukaModalPratinjau('receipt', item, index)" class="p-2 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white transition" title="Pratinjau & Cetak Bukti">
+                                                    <i class="fa-solid fa-print text-xs"></i>
                                                 </button>
-                                                <button @click="hapusBarisBulan('pengeluaran', index)" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
+                                                <button @click="hapusBarisBulan('pengeluaran', index)" class="p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
                                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                                 </button>
                                             </div>
@@ -1009,7 +1013,7 @@
                                     <th class="py-3 px-4 w-1/4">Nilai Jasa (Rp)</th>
                                     <th class="py-3 px-4 w-28 text-center">Bagi Hasil (%)</th>
                                     <th class="py-3 px-4 w-1/4">Gaji Dibayarkan</th>
-                                    <th class="py-3 px-4 w-28 text-center no-print">Cetak / Opsi</th>
+                                    <th class="py-3 px-4 w-24 text-center no-print">Opsi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
@@ -1036,11 +1040,10 @@
                                         <td class="p-2.5 font-mono-code font-extrabold text-amber-600 dark:text-amber-400 text-xs sm:text-sm" x-text="formatRp(hitungGaji(item))"></td>
                                         <td class="p-2.5 text-center no-print">
                                             <div class="flex items-center justify-center space-x-1">
-                                                <button @click="bukaModalCetak('slip', item, index)" class="px-2.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-500 hover:bg-amber-500 hover:text-slate-950 font-bold text-[11px] flex items-center space-x-1 transition" title="Pratinjau & Cetak Slip Gaji">
-                                                    <i class="fa-solid fa-print text-[10px]"></i>
-                                                    <span>Slip</span>
+                                                <button @click="bukaModalPratinjau('slip', item, index)" class="p-2 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition" title="Pratinjau & Cetak Slip Gaji">
+                                                    <i class="fa-solid fa-print text-xs"></i>
                                                 </button>
-                                                <button @click="hapusBarisBulan('gaji', index)" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
+                                                <button @click="hapusBarisBulan('gaji', index)" class="p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 transition" title="Hapus">
                                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                                 </button>
                                             </div>
@@ -1143,10 +1146,10 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- SCRIPT UTAMA TERINTEGRASI GOOGLE SHEETS & PRATINJAU CETAK SISAPI    -->
+    <!-- SCRIPT UTAMA TERINTEGRASI GOOGLE SHEETS + MODAL PRATINJAU SISAPI    -->
     <!-- =================================================================== -->
     <script>
-        // URL Google Apps Script Sistem Keuangan PT Media Tulisan Manusia:
+        // URL Google Apps Script Sistem Keuangan PT Media Tulisan Manusia milik Anda:
         const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwMKdTyq3JONxc_kvI84y1vJPjftTxG9QKmQGUtBve68leTyhg_7zrO2VhUqLa_lDwFyQ/exec";
 
         const ACCOUNTS = {
@@ -1169,9 +1172,13 @@
 
                 activeTab: 'dashboard',
                 printAll: false,
-                showModalPreview: false,
+                
+                // State Pratinjau Cetak Ala SISAPI
+                showPrintModal: false,
                 previewTitle: 'Pratinjau Dokumen',
-                activePrintFilename: 'Dokumen_MTM.pdf',
+                previewHtml: '',
+                previewFilename: 'Dokumen_MTM.pdf',
+
                 showToast: false,
                 toastMessage: '',
                 isGlobalLoading: false,
@@ -1189,7 +1196,7 @@
                 data: null, 
 
                 initApp() {
-                    // Pastikan URL Default selalu terpasang jika localStorage kosong
+                    // Pastikan URL Default selalu terpasang jika belum ada di localStorage
                     if (!localStorage.getItem('MTM_FINANCE_GAS_URL')) {
                         localStorage.setItem('MTM_FINANCE_GAS_URL', DEFAULT_GAS_URL);
                         this.scriptUrl = DEFAULT_GAS_URL;
@@ -1273,12 +1280,8 @@
                     this.showModalConfig = true;
                 },
 
-                resetDefaultUrl() {
-                    this.scriptUrlInput = DEFAULT_GAS_URL;
-                },
-
                 saveScriptUrl() {
-                    this.scriptUrl = (this.scriptUrlInput || DEFAULT_GAS_URL).trim();
+                    this.scriptUrl = (this.scriptUrlInput || '').trim() || DEFAULT_GAS_URL;
                     localStorage.setItem('MTM_FINANCE_GAS_URL', this.scriptUrl);
                     this.showModalConfig = false;
                     this.triggerToast('URL Database Disimpan!');
@@ -1365,7 +1368,7 @@
                             if (showNotif) this.triggerToast('Data Sinkron dengan Google Sheets!');
                         } else if (json && json.status === 'EMPTY') {
                             await this.executeSave(false);
-                            if (showNotif) this.triggerToast('Database Sheets Siap & Disinkronkan!');
+                            if (showNotif) this.triggerToast('Database Baru Diinisialisasi!');
                         }
                     } catch (err) {
                         if (showNotif) this.triggerToast('Gagal Sinkron (Cek Koneksi)');
@@ -1575,319 +1578,336 @@
                 getJabatan(nama) {
                     if(!this.data || !this.data.staffList) return '-';
                     const st = this.data.staffList.find(s => s.nama === nama);
-                    return st && st.jabatan ? st.jabatan : '-';
+                    return st && st.jabatan ? st.jabatan : 'Staff / Mitra';
                 },
 
-                /* ========================================================================= */
-                /* CETAK DOKUMEN DENGAN MODAL PRATINJAU & QR CODE ALA SURAT JALAN SISAPI     */
-                /* ========================================================================= */
-                bukaModalCetak(type, item, index) {
+                // ===================================================================
+                // SISTEM PRATINJAU CETAK DOKUMEN + QR CODE ALA SURAT JALAN SISAPI
+                // ===================================================================
+                bukaModalPratinjau(type, item, index) {
                     const idxNum = String(index + 1).padStart(3, '0');
-                    const blnRomawi = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][this.activeMonth - 1];
-                    const namaBulan = this.months[this.activeMonth - 1];
+                    const blnKode = this.months[this.activeMonth - 1].substring(0, 3).toUpperCase();
+                    const periodeTeks = `${this.months[this.activeMonth - 1]} ${this.activeYear}`;
                     const tglCetak = this.currentDateFormatted();
-                    const tglTransaksi = this.formatTanggalIndo(item.tanggal);
-                    const otoritas = this.currentUser ? this.currentUser.display : "SUFYAN";
 
-                    let docNo = "";
-                    let docTitle = "";
-                    let badgeColor = "#081c34";
-                    let qrDataText = "";
-                    let htmlBody = "";
+                    let docNo = '';
+                    let badgeTitle = '';
+                    let accentColor = '#0f172a';
+                    let qrText = '';
 
                     if (type === 'invoice') {
-                        docNo = `INV/MTM/${this.activeYear}/${blnRomawi}/${idxNum}`;
-                        docTitle = "INVOICE TAGIHAN RESMI";
-                        badgeColor = "#059669";
-                        const total = (item.biaya || 0) * (item.jumlah || 1);
-                        this.previewTitle = `Pratinjau Invoice — ${item.klien || 'Klien'}`;
-                        this.activePrintFilename = `Invoice_MTM_${(item.klien || 'Klien').replace(/\s+/g, '_')}_${this.activeYear}.pdf`;
+                        docNo = `INV/MTM/${this.activeYear}/${blnKode}/${idxNum}`;
+                        badgeTitle = 'INVOICE TAGIHAN RESMI';
+                        accentColor = '#081c34';
+                        this.previewTitle = `Pratinjau Invoice — ${docNo}`;
+                        this.previewFilename = `Invoice_MTM_${(item.klien || 'Klien').replace(/\s+/g, '_')}_${item.tanggal || this.activeYear}.pdf`;
 
-                        qrDataText = [
+                        const totalTagihan = (item.biaya || 0) * (item.jumlah || 1);
+                        qrText = [
                             "PT MEDIA TULISAN MANUSIA",
-                            "Dokumen: INVOICE PENDAPATAN",
+                            "DOKUMEN: INVOICE PENDAPATAN",
                             "No: " + docNo,
                             "Klien: " + (item.klien || "-"),
-                            "Layanan: " + (item.nama || "-"),
-                            "Total: " + this.formatRp(total),
-                            "Tanggal: " + tglTransaksi,
-                            "Otoritas: Ach. Sufyan Wahyudi"
+                            "Layanan: [" + (item.kategori || "Umum") + "] " + (item.nama || "-"),
+                            "Total: " + this.formatRp(totalTagihan),
+                            "Tanggal: " + this.formatTanggalIndo(item.tanggal),
+                            "Otorisasi: Ach. Sufyan Wahyudi (Direktur Utama)"
                         ].join("\n");
 
-                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=" + encodeURIComponent(qrDataText);
+                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=4&data=" + encodeURIComponent(qrText);
 
-                        htmlBody = `
-                            <table style="width: 100%; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="width: 65px; vertical-align: middle;">
-                                        <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a;">PT MEDIA TULISAN MANUSIA</div>
-                                        <div style="font-size: 11px; font-weight: 700; color: #334155;">PENERBITAN BUKU, KONSULTAN HAK CIPTA & MEDIA LITERASI</div>
-                                        <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Waktu Cetak: ${tglCetak} | Otoritas: ${otoritas}</div>
-                                    </td>
-                                    <td style="text-align: right; vertical-align: middle;">
-                                        <div style="display: inline-block; background: ${badgeColor}; color: #ffffff; font-weight: 800; font-size: 10px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">${docTitle}</div>
-                                        <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; font-size: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 4px 0; width: 18%;"><b>Ditagihkan Ke</b></td>
-                                    <td style="padding: 4px 0; width: 32%;">: <b>${(item.klien || '-').toUpperCase()}</b></td>
-                                    <td style="padding: 4px 0; width: 18%;"><b>Tanggal Invoice</b></td>
-                                    <td style="padding: 4px 0; width: 32%;">: ${tglTransaksi}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 4px 0;"><b>Kategori</b></td>
-                                    <td style="padding: 4px 0;">: ${(item.kategori || 'Layanan Utama').toUpperCase()}</td>
-                                    <td style="padding: 4px 0;"><b>Status Bayar</b></td>
-                                    <td style="padding: 4px 0;">: <span style="color: #059669; font-weight: 800;">LUNAS / TERVERIFIKASI</span></td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background: #0f172a; color: #ffffff;">
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: left;">KATEGORI</th>
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: left;">DESKRIPSI LAYANAN / JUDUL PROYEK</th>
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: center; width: 60px;">QTY</th>
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: right; width: 130px;">HARGA SATUAN</th>
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: right; width: 140px;">TOTAL TAGIHAN</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        this.previewHtml = `
+                            <div style="font-family: 'Inter', sans-serif; color: #0f172a;">
+                                <!-- KOP DOKUMEN ALA SISAPI -->
+                                <table style="width: 100%; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
                                     <tr>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${(item.kategori || '-').toUpperCase()}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${(item.nama || '-').toUpperCase()}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700;">${item.jumlah || 1}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">${this.formatRp(item.biaya)}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-family: monospace; color: #059669;">${this.formatRp(total)}</td>
+                                        <td style="width: 65px; vertical-align: middle;">
+                                            <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #081c34;">PT MEDIA TULISAN MANUSIA</div>
+                                            <div style="font-size: 11px; font-weight: 700; color: #334155;">PENERBITAN BUKU • KONSULTAN HAK CIPTA • PLATFORM LITERASI</div>
+                                            <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Sukorejo, Kab. Pasuruan & Kota Malang, Jawa Timur</div>
+                                        </td>
+                                        <td style="text-align: right; vertical-align: middle;">
+                                            <div style="background: #081c34; color: #D4AF37; font-weight: 800; font-size: 11px; padding: 5px 10px; border-radius: 6px; display: inline-block; letter-spacing: 0.5px;">${badgeTitle}</div>
+                                            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
+                                        </td>
                                     </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr style="background: #f1f5f9;">
-                                        <td colspan="4" style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; text-transform: uppercase;">GRAND TOTAL DITERIMA</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 14px; font-family: monospace; color: #0f172a;">${this.formatRp(total)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                </table>
 
-                            <table style="width: 100%; margin-top: 24px; font-size: 11px;">
-                                <tr>
-                                    <td style="width: 60%; vertical-align: middle;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <img src="${qrUrl}" alt="QR Code" style="width: 90px; height: 90px; border: 1px solid #cbd5e1; padding: 3px; border-radius: 6px;">
-                                            <div style="font-size: 10px; color: #475569; line-height: 1.4;">
-                                                <b>DOKUMEN SAH TERVERIFIKASI</b><br>
-                                                Pindai QR Code ini untuk memverifikasi keaslian Invoice pada Sistem Keuangan PT Media Tulisan Manusia.
+                                <!-- INFO KLIEN & TANGGAL -->
+                                <table style="width: 100%; font-size: 12px; margin-bottom: 18px;">
+                                    <tr>
+                                        <td style="padding: 4px 0; width: 18%;"><b>Ditagihkan Ke</b></td>
+                                        <td style="padding: 4px 0; width: 35%;">: <b style="font-size: 13px; text-transform: uppercase;">${item.klien || '-'}</b></td>
+                                        <td style="padding: 4px 0; width: 18%;"><b>Tanggal Invoice</b></td>
+                                        <td style="padding: 4px 0; width: 29%;">: ${this.formatTanggalIndo(item.tanggal)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0;"><b>Kategori</b></td>
+                                        <td style="padding: 4px 0;">: ${item.kategori || 'Layanan Umum'}</td>
+                                        <td style="padding: 4px 0;"><b>Status Tagihan</b></td>
+                                        <td style="padding: 4px 0;">: <span style="background:#dcfce7; color:#166534; font-weight:800; padding:2px 6px; border-radius:4px; font-size:10px;">LUNAS / TERCATAT</span></td>
+                                    </tr>
+                                </table>
+
+                                <!-- TABEL RINCIAN -->
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                                    <thead>
+                                        <tr style="background: #081c34; color: #ffffff;">
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: left;">DESKRIPSI LAYANAN / JUDUL PROYEK</th>
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: center; width: 65px;">QTY</th>
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: right; width: 140px;">HARGA SATUAN</th>
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: right; width: 150px;">TOTAL TAGIHAN</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700; text-transform: uppercase;">${item.nama || '-'}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700;">${item.jumlah || 1}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">${this.formatRp(item.biaya)}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 800; font-family: monospace;">${this.formatRp(totalTagihan)}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #f1f5f9;">
+                                            <td colspan="3" style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 12px;">GRAND TOTAL DIBAYARKAN</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 15px; color: #059669; font-family: monospace;">${this.formatRp(totalTagihan)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                                <!-- FOOTER QR & TANDA TANGAN ALA SISAPI -->
+                                <table style="width: 100%; margin-top: 24px; font-size: 11px;">
+                                    <tr>
+                                        <td style="width: 55%; vertical-align: middle;">
+                                            <div style="display: flex; align-items: center; gap: 12px; border: 1px dashed #94a3b8; padding: 10px; border-radius: 10px; background: #f8fafc;">
+                                                <img src="${qrUrl}" alt="QR Validasi" style="width: 84px; height: 84px; border: 1px solid #e2e8f0; padding: 3px; background: #fff; border-radius: 6px;">
+                                                <div>
+                                                    <div style="font-weight: 800; color: #0f172a; font-size: 11px;">VALIDASI DIGITAL SIMKEU</div>
+                                                    <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Dokumen ini sah dan tercatat otomatis pada buku besar PT Media Tulisan Manusia.</div>
+                                                    <div style="font-size: 9px; font-family: monospace; color: #059669; margin-top: 4px; font-weight: 700;">ID: ${docNo}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td style="width: 40%; text-align: center; vertical-align: bottom;">
-                                        <div style="font-weight: 700; margin-bottom: 55px;">Pasuruan, ${tglCetak}<br>Direktur Utama</div>
-                                        <div style="font-weight: 900; text-decoration: underline; font-size: 13px;">ACH. SUFYAN WAHYUDI</div>
-                                        <div style="font-size: 10px; color: #64748b; font-weight: 700;">PT Media Tulisan Manusia</div>
-                                    </td>
-                                </tr>
-                            </table>
+                                        </td>
+                                        <td style="width: 45%; text-align: center; vertical-align: bottom;">
+                                            <div style="font-weight: 600; color: #334155;">Pasuruan, ${tglCetak}</div>
+                                            <div style="font-weight: 800; color: #0f172a; margin-bottom: 54px;">Direktur Utama,</div>
+                                            <div style="font-weight: 900; font-size: 13px; text-decoration: underline; color: #081c34;">ACH. SUFYAN WAHYUDI</div>
+                                            <div style="font-weight: 700; font-size: 10px; color: #64748b;">PT MEDIA TULISAN MANUSIA</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         `;
                     } else if (type === 'receipt') {
-                        docNo = `OUT/MTM/${this.activeYear}/${blnRomawi}/${idxNum}`;
-                        docTitle = "BUKTI PENGELUARAN KAS";
-                        badgeColor = "#e11d48";
-                        const total = (item.biaya || 0) * (item.jumlah || 1);
-                        this.previewTitle = `Pratinjau Bukti Pengeluaran — ${item.pic || 'PIC'}`;
-                        this.activePrintFilename = `Bukti_Pengeluaran_MTM_${(item.pic || 'PIC').replace(/\s+/g, '_')}_${this.activeYear}.pdf`;
+                        docNo = `OUT/MTM/${this.activeYear}/${blnKode}/${idxNum}`;
+                        badgeTitle = 'BUKTI KAS KELUAR';
+                        this.previewTitle = `Pratinjau Bukti Pengeluaran — ${docNo}`;
+                        this.previewFilename = `Bukti_Pengeluaran_MTM_${(item.pic || 'PIC').replace(/\s+/g, '_')}_${item.tanggal || this.activeYear}.pdf`;
 
-                        qrDataText = [
+                        const totalKeluar = (item.biaya || 0) * (item.jumlah || 1);
+                        qrText = [
                             "PT MEDIA TULISAN MANUSIA",
-                            "Dokumen: BUKTI PENGELUARAN",
+                            "DOKUMEN: BUKTI PENGELUARAN KAS",
                             "No: " + docNo,
                             "Keperluan: " + (item.nama || "-"),
                             "PIC: " + (item.pic || "-"),
-                            "Total: " + this.formatRp(total),
-                            "Tanggal: " + tglTransaksi
+                            "Total: " + this.formatRp(totalKeluar),
+                            "Tanggal: " + this.formatTanggalIndo(item.tanggal),
+                            "Otorisasi: Ach. Sufyan Wahyudi"
                         ].join("\n");
 
-                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=" + encodeURIComponent(qrDataText);
+                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=4&data=" + encodeURIComponent(qrText);
 
-                        htmlBody = `
-                            <table style="width: 100%; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="width: 65px; vertical-align: middle;">
-                                        <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a;">PT MEDIA TULISAN MANUSIA</div>
-                                        <div style="font-size: 11px; font-weight: 700; color: #334155;">DIVISI KEUANGAN & OPERASIONAL PERUSAHAAN</div>
-                                        <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Waktu Cetak: ${tglCetak} | Otoritas: ${otoritas}</div>
-                                    </td>
-                                    <td style="text-align: right; vertical-align: middle;">
-                                        <div style="display: inline-block; background: ${badgeColor}; color: #ffffff; font-weight: 800; font-size: 10px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">${docTitle}</div>
-                                        <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; font-size: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 4px 0; width: 22%;"><b>Penanggung Jawab (PIC)</b></td>
-                                    <td style="padding: 4px 0; width: 28%;">: <b>${(item.pic || '-').toUpperCase()}</b></td>
-                                    <td style="padding: 4px 0; width: 20%;"><b>Tanggal Transaksi</b></td>
-                                    <td style="padding: 4px 0; width: 30%;">: ${tglTransaksi}</td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background: #881337; color: #ffffff;">
-                                        <th style="padding: 10px; border: 1px solid #881337; text-align: left;">DESKRIPSI KEPERLUAN BELANJA / OPERASIONAL</th>
-                                        <th style="padding: 10px; border: 1px solid #881337; text-align: center; width: 70px;">QTY</th>
-                                        <th style="padding: 10px; border: 1px solid #881337; text-align: right; width: 140px;">HARGA SATUAN</th>
-                                        <th style="padding: 10px; border: 1px solid #881337; text-align: right; width: 150px;">TOTAL KELUARAN</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        this.previewHtml = `
+                            <div style="font-family: 'Inter', sans-serif; color: #0f172a;">
+                                <table style="width: 100%; border-bottom: 3px double #991b1b; padding-bottom: 12px; margin-bottom: 16px;">
                                     <tr>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">${(item.nama || '-').toUpperCase()}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700;">${item.jumlah || 1}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">${this.formatRp(item.biaya)}</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-family: monospace; color: #e11d48;">${this.formatRp(total)}</td>
+                                        <td style="width: 65px; vertical-align: middle;">
+                                            <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #991b1b;">PT MEDIA TULISAN MANUSIA</div>
+                                            <div style="font-size: 11px; font-weight: 700; color: #334155;">DIVISI KEUANGAN & OPERASIONAL INTERNAL</div>
+                                            <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Sukorejo, Kab. Pasuruan & Kota Malang, Jawa Timur</div>
+                                        </td>
+                                        <td style="text-align: right; vertical-align: middle;">
+                                            <div style="background: #991b1b; color: #ffffff; font-weight: 800; font-size: 11px; padding: 5px 10px; border-radius: 6px; display: inline-block; letter-spacing: 0.5px;">${badgeTitle}</div>
+                                            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
+                                        </td>
                                     </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr style="background: #fff1f2;">
-                                        <td colspan="3" style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; text-transform: uppercase;">GRAND TOTAL DIKELUARKAN</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 14px; font-family: monospace; color: #881337;">${this.formatRp(total)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                </table>
 
-                            <table style="width: 100%; margin-top: 24px; font-size: 11px;">
-                                <tr>
-                                    <td style="width: 60%; vertical-align: middle;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <img src="${qrUrl}" alt="QR Code" style="width: 90px; height: 90px; border: 1px solid #cbd5e1; padding: 3px; border-radius: 6px;">
-                                            <div style="font-size: 10px; color: #475569; line-height: 1.4;">
-                                                <b>BUKTI KAS KELUAR TERVERIFIKASI</b><br>
-                                                Tercatat resmi pada Buku Besar CFO PT Media Tulisan Manusia Periode ${namaBulan} ${this.activeYear}.
+                                <table style="width: 100%; font-size: 12px; margin-bottom: 18px;">
+                                    <tr>
+                                        <td style="padding: 4px 0; width: 22%;"><b>Penanggung Jawab (PIC)</b></td>
+                                        <td style="padding: 4px 0; width: 33%;">: <b style="font-size: 13px; text-transform: uppercase;">${item.pic || '-'}</b></td>
+                                        <td style="padding: 4px 0; width: 18%;"><b>Tanggal Transaksi</b></td>
+                                        <td style="padding: 4px 0; width: 27%;">: ${this.formatTanggalIndo(item.tanggal)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0;"><b>Periode Buku</b></td>
+                                        <td style="padding: 4px 0;">: ${periodeTeks}</td>
+                                        <td style="padding: 4px 0;"><b>Status Kas</b></td>
+                                        <td style="padding: 4px 0;">: <span style="background:#fee2e2; color:#991b1b; font-weight:800; padding:2px 6px; border-radius:4px; font-size:10px;">DIKELUARKAN</span></td>
+                                    </tr>
+                                </table>
+
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                                    <thead>
+                                        <tr style="background: #991b1b; color: #ffffff;">
+                                            <th style="padding: 10px; border: 1px solid #991b1b; text-align: left;">DESKRIPSI KEPERLUAN PENGELUARAN</th>
+                                            <th style="padding: 10px; border: 1px solid #991b1b; text-align: center; width: 65px;">QTY</th>
+                                            <th style="padding: 10px; border: 1px solid #991b1b; text-align: right; width: 140px;">HARGA SATUAN</th>
+                                            <th style="padding: 10px; border: 1px solid #991b1b; text-align: right; width: 150px;">TOTAL KELUAR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700; text-transform: uppercase;">${item.nama || '-'}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700;">${item.jumlah || 1}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">${this.formatRp(item.biaya)}</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 800; font-family: monospace;">${this.formatRp(totalKeluar)}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #fef2f2;">
+                                            <td colspan="3" style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 12px;">GRAND TOTAL DIKELUARKAN</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-weight: 900; font-size: 15px; color: #dc2626; font-family: monospace;">${this.formatRp(totalKeluar)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                                <table style="width: 100%; margin-top: 24px; font-size: 11px;">
+                                    <tr>
+                                        <td style="width: 55%; vertical-align: middle;">
+                                            <div style="display: flex; align-items: center; gap: 12px; border: 1px dashed #94a3b8; padding: 10px; border-radius: 10px; background: #f8fafc;">
+                                                <img src="${qrUrl}" alt="QR Validasi" style="width: 84px; height: 84px; border: 1px solid #e2e8f0; padding: 3px; background: #fff; border-radius: 6px;">
+                                                <div>
+                                                    <div style="font-weight: 800; color: #0f172a; font-size: 11px;">VALIDASI BUKTI PENGELUARAN</div>
+                                                    <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Bukti pengeluaran operasional sah dan telah diverifikasi sistem keuangan MTM.</div>
+                                                    <div style="font-size: 9px; font-family: monospace; color: #991b1b; margin-top: 4px; font-weight: 700;">ID: ${docNo}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td style="width: 40%; text-align: center; vertical-align: bottom;">
-                                        <div style="font-weight: 700; margin-bottom: 55px;">Mengetahui,<br>Direktur Utama</div>
-                                        <div style="font-weight: 900; text-decoration: underline; font-size: 13px;">ACH. SUFYAN WAHYUDI</div>
-                                        <div style="font-size: 10px; color: #64748b; font-weight: 700;">PT Media Tulisan Manusia</div>
-                                    </td>
-                                </tr>
-                            </table>
+                                        </td>
+                                        <td style="width: 45%; text-align: center; vertical-align: bottom;">
+                                            <div style="font-weight: 600; color: #334155;">Pasuruan, ${tglCetak}</div>
+                                            <div style="font-weight: 800; color: #0f172a; margin-bottom: 54px;">Mengetahui & Menyetujui,</div>
+                                            <div style="font-weight: 900; font-size: 13px; text-decoration: underline; color: #081c34;">ACH. SUFYAN WAHYUDI</div>
+                                            <div style="font-weight: 700; font-size: 10px; color: #64748b;">DIREKTUR UTAMA</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         `;
                     } else if (type === 'slip') {
-                        docNo = `SLIP/MTM/${this.activeYear}/${blnRomawi}/${idxNum}`;
-                        docTitle = "SLIP DISTRIBUSI GAJI & BAGI HASIL";
-                        badgeColor = "#d97706";
-                        const totalGaji = this.hitungGaji(item);
-                        const jabatan = this.getJabatan(item.nama);
+                        docNo = `SLIP/MTM/${this.activeYear}/${blnKode}/${idxNum}`;
+                        badgeTitle = 'SLIP GAJI & BAGI HASIL';
                         this.previewTitle = `Pratinjau Slip Gaji — ${item.nama || 'Staff'}`;
-                        this.activePrintFilename = `Slip_Gaji_MTM_${(item.nama || 'Staff').replace(/\s+/g, '_')}_${namaBulan}_${this.activeYear}.pdf`;
+                        this.previewFilename = `Slip_Gaji_${(item.nama || 'Staff').replace(/\s+/g, '_')}_${this.months[this.activeMonth-1]}_${this.activeYear}.pdf`;
 
-                        qrDataText = [
+                        const totalGaji = this.hitungGaji(item);
+                        const jabatanStaff = this.getJabatan(item.nama);
+
+                        qrText = [
                             "PT MEDIA TULISAN MANUSIA",
-                            "Dokumen: SLIP GAJI RESMI",
+                            "DOKUMEN: SLIP GAJI & BAGI HASIL",
                             "No: " + docNo,
                             "Nama: " + (item.nama || "-"),
-                            "Jabatan: " + jabatan,
+                            "Jabatan: " + jabatanStaff,
+                            "Periode: " + periodeTeks,
                             "Take Home Pay: " + this.formatRp(totalGaji),
-                            "Periode: " + namaBulan + " " + this.activeYear
+                            "Otorisasi: Ach. Sufyan Wahyudi"
                         ].join("\n");
 
-                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=" + encodeURIComponent(qrDataText);
+                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=4&data=" + encodeURIComponent(qrText);
 
-                        htmlBody = `
-                            <table style="width: 100%; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="width: 65px; vertical-align: middle;">
-                                        <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a;">PT MEDIA TULISAN MANUSIA</div>
-                                        <div style="font-size: 11px; font-weight: 700; color: #334155;">SLIP DISTRIBUSI PENDAPATAN TIM & STAFF INTERNAL</div>
-                                        <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Periode: ${namaBulan} ${this.activeYear} | Dicetak: ${tglCetak}</div>
-                                    </td>
-                                    <td style="text-align: right; vertical-align: middle;">
-                                        <div style="display: inline-block; background: ${badgeColor}; color: #ffffff; font-weight: 800; font-size: 10px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">${docTitle}</div>
-                                        <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; font-size: 12px; margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 4px 0; width: 20%;"><b>Nama Personel</b></td>
-                                    <td style="padding: 4px 0; width: 35%;">: <b>${(item.nama || '-').toUpperCase()}</b></td>
-                                    <td style="padding: 4px 0; width: 18%;"><b>Periode Buku</b></td>
-                                    <td style="padding: 4px 0; width: 27%;">: ${namaBulan} ${this.activeYear}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 4px 0;"><b>Jabatan Posisi</b></td>
-                                    <td style="padding: 4px 0;">: ${jabatan.toUpperCase()}</td>
-                                    <td style="padding: 4px 0;"><b>Status</b></td>
-                                    <td style="padding: 4px 0;">: <span style="color: #059669; font-weight: 800;">DIBAYARKAN</span></td>
-                                </tr>
-                            </table>
-
-                            <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background: #0f172a; color: #ffffff;">
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: left;">DESKRIPSI KOMPONEN PENDAPATAN</th>
-                                        <th style="padding: 10px; border: 1px solid #0f172a; text-align: right; width: 180px;">NOMINAL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        this.previewHtml = `
+                            <div style="font-family: 'Inter', sans-serif; color: #0f172a;">
+                                <table style="width: 100%; border-bottom: 3px double #081c34; padding-bottom: 12px; margin-bottom: 16px;">
                                     <tr>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">Nilai Jasa Proyek Utama</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; font-weight: 700;">${this.formatRp(item.jasa)}</td>
+                                        <td style="width: 65px; vertical-align: middle;">
+                                            <img src="logopt.webp" onerror="this.src='icon.webp'; this.onerror=null;" alt="Logo" style="width: 56px; height: 56px; object-fit: contain;">
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.5px; color: #081c34;">PT MEDIA TULISAN MANUSIA</div>
+                                            <div style="font-size: 11px; font-weight: 700; color: #334155;">SLIP DISTRIBUSI PENDAPATAN & BAGI HASIL TIM</div>
+                                            <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Sukorejo, Kab. Pasuruan & Kota Malang, Jawa Timur</div>
+                                        </td>
+                                        <td style="text-align: right; vertical-align: middle;">
+                                            <div style="background: #081c34; color: #D4AF37; font-weight: 800; font-size: 11px; padding: 5px 10px; border-radius: 6px; display: inline-block; letter-spacing: 0.5px;">${badgeTitle}</div>
+                                            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; font-family: monospace; color: #0f172a;">${docNo}</div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table style="width: 100%; font-size: 12px; margin-bottom: 18px;">
+                                    <tr>
+                                        <td style="padding: 4px 0; width: 20%;"><b>Nama Personel</b></td>
+                                        <td style="padding: 4px 0; width: 35%;">: <b style="font-size: 13px; text-transform: uppercase;">${item.nama || '-'}</b></td>
+                                        <td style="padding: 4px 0; width: 18%;"><b>Periode Gaji</b></td>
+                                        <td style="padding: 4px 0; width: 27%;">: ${periodeTeks}</td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">Persentase Bagi Hasil (${item.keuntungan || 0}%)</td>
-                                        <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; color: #64748b; font-weight: 700;">Terhitung Otomatis</td>
+                                        <td style="padding: 4px 0;"><b>Jabatan Posisi</b></td>
+                                        <td style="padding: 4px 0;">: ${jabatanStaff}</td>
+                                        <td style="padding: 4px 0;"><b>Status Bayar</b></td>
+                                        <td style="padding: 4px 0;">: <span style="background:#fef3c7; color:#92400e; font-weight:800; padding:2px 6px; border-radius:4px; font-size:10px;">TERVERIFIKASI</span></td>
                                     </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr style="background: #081c34; color: #D4AF37;">
-                                        <td style="padding: 14px 10px; border: 1px solid #081c34; text-align: right; font-weight: 900; text-transform: uppercase;">TOTAL DITERIMA (TAKE HOME PAY)</td>
-                                        <td style="padding: 14px 10px; border: 1px solid #081c34; text-align: right; font-weight: 900; font-size: 15px; font-family: monospace;">${this.formatRp(totalGaji)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                </table>
 
-                            <table style="width: 100%; margin-top: 24px; font-size: 11px;">
-                                <tr>
-                                    <td style="width: 60%; vertical-align: middle;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <img src="${qrUrl}" alt="QR Code" style="width: 90px; height: 90px; border: 1px solid #cbd5e1; padding: 3px; border-radius: 6px;">
-                                            <div style="font-size: 10px; color: #475569; line-height: 1.4;">
-                                                <b>SLIP GAJI SAH TERVERIFIKASI QR</b><br>
-                                                Diterbitkan secara otomatis oleh Sistem Informasi Keuangan PT Media Tulisan Manusia.
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                                    <thead>
+                                        <tr style="background: #081c34; color: #ffffff;">
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: left;">KOMPONEN PERHITUNGAN JASA</th>
+                                            <th style="padding: 10px; border: 1px solid #081c34; text-align: right; width: 200px;">NOMINAL / PERSENTASE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">Nilai Jasa Project Utama</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; font-weight: 700;">${this.formatRp(item.jasa)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; font-weight: 700;">Persentase Bagi Hasil Disepakati</td>
+                                            <td style="padding: 12px 10px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; font-weight: 800; color: #b45309;">${item.keuntungan || 0}%</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background: #081c34; color: #D4AF37;">
+                                            <td style="padding: 14px 10px; border: 1px solid #081c34; text-align: right; font-weight: 900; font-size: 12px;">TOTAL DITERIMA (TAKE HOME PAY)</td>
+                                            <td style="padding: 14px 10px; border: 1px solid #081c34; text-align: right; font-weight: 900; font-size: 16px; font-family: monospace;">${this.formatRp(totalGaji)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                                <table style="width: 100%; margin-top: 24px; font-size: 11px;">
+                                    <tr>
+                                        <td style="width: 55%; vertical-align: middle;">
+                                            <div style="display: flex; align-items: center; gap: 12px; border: 1px dashed #94a3b8; padding: 10px; border-radius: 10px; background: #f8fafc;">
+                                                <img src="${qrUrl}" alt="QR Validasi" style="width: 84px; height: 84px; border: 1px solid #e2e8f0; padding: 3px; background: #fff; border-radius: 6px;">
+                                                <div>
+                                                    <div style="font-weight: 800; color: #0f172a; font-size: 11px;">VALIDASI SLIP GAJI RESMI</div>
+                                                    <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Penerima menyatakan telah menerima bagi hasil sesuai rincian di atas.</div>
+                                                    <div style="font-size: 9px; font-family: monospace; color: #081c34; margin-top: 4px; font-weight: 700;">ID: ${docNo}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td style="width: 40%; text-align: center; vertical-align: bottom;">
-                                        <div style="font-weight: 700; margin-bottom: 55px;">Pasuruan, ${tglCetak}<br>Direktur Utama</div>
-                                        <div style="font-weight: 900; text-decoration: underline; font-size: 13px;">ACH. SUFYAN WAHYUDI</div>
-                                        <div style="font-size: 10px; color: #64748b; font-weight: 700;">PT Media Tulisan Manusia</div>
-                                    </td>
-                                </tr>
-                            </table>
+                                        </td>
+                                        <td style="width: 45%; text-align: center; vertical-align: bottom;">
+                                            <div style="font-weight: 600; color: #334155;">Pasuruan, ${tglCetak}</div>
+                                            <div style="font-weight: 800; color: #0f172a; margin-bottom: 54px;">Direktur Utama,</div>
+                                            <div style="font-weight: 900; font-size: 13px; text-decoration: underline; color: #081c34;">ACH. SUFYAN WAHYUDI</div>
+                                            <div style="font-weight: 700; font-size: 10px; color: #64748b;">PT MEDIA TULISAN MANUSIA</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         `;
                     }
 
-                    document.getElementById('areaDokumenCetak').innerHTML = htmlBody;
-                    this.showModalPreview = true;
+                    this.showPrintModal = true;
                 },
 
                 printDokumenLangsung() {
@@ -1896,23 +1916,24 @@
 
                 unduhDokumenPDF() {
                     const el = document.getElementById('areaDokumenCetak');
+                    if (!el) return;
                     this.loadingText = 'Mengunduh Dokumen PDF...';
                     this.isGlobalLoading = true;
 
                     const opt = {
                         margin: 0.4,
-                        filename: this.activePrintFilename,
-                        image: { type: 'jpeg', quality: 0.98 },
+                        filename: this.previewFilename,
+                        image: { type: 'jpeg', quality: 1 },
                         html2canvas: { scale: 2, useCORS: true, logging: false },
                         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
                     };
 
                     html2pdf().set(opt).from(el).save().then(() => {
                         this.isGlobalLoading = false;
-                        this.triggerToast('Dokumen PDF Berhasil Diunduh!');
+                        this.triggerToast('PDF Berhasil Diunduh!');
                     }).catch(() => {
                         this.isGlobalLoading = false;
-                        this.triggerToast('Gagal mengunduh PDF');
+                        this.triggerToast('Gagal Mengunduh PDF');
                     });
                 },
 
