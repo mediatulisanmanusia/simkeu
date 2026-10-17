@@ -314,7 +314,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
                             <i class="fa-solid fa-user-shield text-xs"></i>
                         </span>
-                        <input type="text" x-model="loginUser" required placeholder="Admin / CEO" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:outline-none focus:border-gold transition">
+                        <input type="text" x-model="loginUser" required placeholder="username" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-charcoal-deep border border-charcoal-border text-white font-bold text-xs focus:outline-none focus:border-gold transition">
                     </div>
                 </div>
 
@@ -337,7 +337,7 @@
             </form>
 
             <div class="mt-6 pt-4 border-t border-charcoal-border text-center">
-                <p class="text-[10px] text-slate-500">Google Sheets Cloud Database</p>
+                <p class="text-[10px] text-slate-500">Cloud Database</p>
             </div>
         </div>
     </div>
@@ -353,7 +353,7 @@
                         <i class="fa-solid fa-database text-xs"></i>
                     </span>
                     <div>
-                        <h3 class="font-bold text-xs sm:text-sm">Database Sheets</h3>
+                        <h3 class="font-bold text-xs sm:text-sm">Database</h3>
                         <p class="text-[10px] text-slate-400">PT Media Tulisan Manusia</p>
                     </div>
                 </div>
@@ -363,7 +363,7 @@
             </div>
             <div class="p-4 space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Web App URL</label>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Database</label>
                     <input type="url" x-model="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full premium-input rounded-xl px-3 py-2.5 text-xs font-mono-code">
                 </div>
                 <div class="flex space-x-2 pt-1">
@@ -410,7 +410,7 @@
                                 style="display: none;"
                                 title="Instal SIMKEU">
                             <i class="fa-solid fa-download text-[10px]"></i>
-                            <span>Instal</span>
+                            <span>App</span>
                         </button>
 
                         <!-- Tombol Tema -->
@@ -446,7 +446,7 @@
                     <div class="flex items-center space-x-1.5 text-slate-500 dark:text-silver">
                         <i class="fa-regular fa-clock text-gold"></i>
                         <span>Live:</span>
-                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-gold/15 text-gold-dark dark:text-gold-light border border-gold/30 font-sans font-bold" x-text="scriptUrl ? 'Sheets Aktif' : 'Mode Lokal'"></span>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-gold/15 text-gold-dark dark:text-gold-light border border-gold/30 font-sans font-bold" x-text="scriptUrl ? 'Database Aktif' : 'Mode Lokal'"></span>
                     </div>
                     <div class="font-bold text-slate-700 dark:text-slate-300" x-text="realtimeClock"></div>
                 </div>
@@ -527,7 +527,7 @@
 
                     <div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold-light text-[10px] font-bold mb-3">
                         <span class="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
-                        <span x-text="scriptUrl ? 'Database Sheets Aktif' : 'Database Lokal'"></span>
+                        <span x-text="scriptUrl ? 'Database Aktif' : 'Database Lokal'"></span>
                     </div>
 
                     <h2 class="text-xl sm:text-2xl font-black tracking-tight">
